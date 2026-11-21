@@ -24,7 +24,9 @@ _states: dict = {}   # one-time values for the connect redirects: state -> (user
 
 SECRET_KEYS = ("discord_webhook", "telegram_token")
 SETTING_DEFAULTS = {"discord_webhook": "", "telegram_token": "", "telegram_chat": "", "paused": False,
-                    "digest_hour": 8, "last_digest": "", "tour_done": False}
+                    "digest_hour": 8, "last_digest": "", "tour_done": False,
+                    "yt_daily_upload_limit": 6, "yt_min_interval_minutes": 120, "yt_default_privacy": "private",
+                    "yt_auto_prep_clips": True, "yt_skip_review_auto_queue": False}
 
 YT_SCOPES = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly"
 IG = "https://graph.instagram.com"
@@ -250,7 +252,7 @@ def save_settings(patch: dict) -> dict:
         for k, v in patch.items():
             if k not in SETTING_DEFAULTS:
                 continue
-            if k in ("paused", "tour_done"):
+            if k in ("paused", "tour_done", "yt_auto_prep_clips", "yt_skip_review_auto_queue"):
                 v = bool(v)
             elif k == "digest_hour":
                 v = max(0, min(23, int(v)))
@@ -352,6 +354,7 @@ def youtube_upload(acc, path: Path, title: str, description: str, tags: list, pr
         done = _check(httpx.put(start.headers["Location"], content=f.read(),
                                 headers={"Authorization": f"Bearer {token}", "Content-Type": "video/mp4"}, timeout=900),
                       "Uploading to YouTube").json()
+    youtube_record_upload(acc)
     return done["id"], f"https://www.youtube.com/shorts/{done['id']}"
 
 
@@ -364,6 +367,70 @@ def youtube_views(acc, ids: list) -> dict:
         for it in r.get("items", []):
             out[it["id"]] = int(it["statistics"].get("viewCount", 0))
     return out
+
+
+_YT_QUOTA_COST = 1600
+_YT_DEFAULT_QUOTA = 10000
+
+
+def _yt_quota_key(acc_id: str) -> str:
+    return f"yt_quota_{acc_id}"
+
+
+def _read_quota_usage(acc_id: str) -> dict:
+    f = _dir() / "quota.json"
+    if not f.exists():
+        return {}
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+        return data.get(_yt_quota_key(acc_id), {})
+    except ValueError:
+        return {}
+
+
+def _write_quota_usage(acc_id: str, usage: dict):
+    f = _dir() / "quota.json"
+    with _lock:
+        all_data = {}
+        if f.exists():
+            try:
+                all_data = json.loads(f.read_text(encoding="utf-8"))
+            except ValueError:
+                pass
+        all_data[_yt_quota_key(acc_id)] = usage
+        tmp = f.with_suffix(".tmp")
+        tmp.write_text(json.dumps(all_data), encoding="utf-8")
+        tmp.replace(f)
+
+
+def youtube_quota_remaining(acc) -> tuple[int, int]:
+    """Returns (quota_remaining, estimated_daily_quota) for this YouTube account."""
+    acc_id = acc["id"]
+    usage = _read_quota_usage(acc_id)
+    today = time.strftime("%Y-%m-%d")
+    used_today = usage.get(today, 0)
+    estimated_quota = usage.get("estimated_quota", _YT_DEFAULT_QUOTA)
+    remaining = max(0, estimated_quota - used_today)
+    return remaining, estimated_quota
+
+
+def youtube_can_upload(acc, cost: int = _YT_QUOTA_COST) -> tuple[bool, str]:
+    """Check if we can upload to this YouTube account. Returns (can_upload, reason)."""
+    remaining, estimated = youtube_quota_remaining(acc)
+    if remaining >= cost:
+        return True, f"Quota OK: {remaining}/{estimated} remaining"
+    return False, f"Quota exhausted: {remaining}/{estimated} used today"
+
+
+def youtube_record_upload(acc, cost: int = _YT_QUOTA_COST):
+    """Record an upload against this account's quota."""
+    acc_id = acc["id"]
+    usage = _read_quota_usage(acc_id)
+    today = time.strftime("%Y-%m-%d")
+    usage[today] = usage.get(today, 0) + cost
+    if "estimated_quota" not in usage:
+        usage["estimated_quota"] = _YT_DEFAULT_QUOTA
+    _write_quota_usage(acc_id, usage)
 
 
 # ------------------------------------------------------------------ Instagram (Instagram Login, professional accounts)

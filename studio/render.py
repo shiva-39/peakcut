@@ -292,3 +292,31 @@ def _render_in(work: Path, src: Path, out_dir: Path, name: str, start, end, layo
     for ext in ("mp4", "jpg", "ass"):
         shutil.move(str(work / f"{name}.{ext}"), str(out_dir / f"{name}.{ext}"))
     return {"file": f"{name}.mp4", "cover": f"{name}.jpg", "layout": layout}
+
+
+def extract_thumbnail(job_dir: Path, clip_id: str) -> str | None:
+    """Extract a clean JPEG cover frame from the rendered clip via ffmpeg.
+    Returns the path to the thumbnail if successful, None otherwise."""
+    clip_file = job_dir / "clips" / f"{clip_id}.mp4"
+    cover_file = job_dir / "clips" / f"{clip_id}.jpg"
+    if not clip_file.exists():
+        return None
+    if cover_file.exists():
+        return str(cover_file)
+    work = Path(__import__("tempfile").mkdtemp(prefix="pk_thumb_"))
+    try:
+        out = work / f"{clip_id}.jpg"
+        from .media import run
+        cover_t = 1.2
+        run(["ffmpeg", "-y", "-v", "error", "-ss", f"{cover_t:.2f}", "-i", str(clip_file), "-frames:v", "1",
+             "-q:v", "3", str(out)], cwd=work)
+        if out.exists():
+            import shutil
+            shutil.move(str(out), str(cover_file))
+            return str(cover_file)
+    except Exception:
+        pass
+    finally:
+        import shutil
+        shutil.rmtree(work, ignore_errors=True)
+    return None

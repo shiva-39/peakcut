@@ -111,6 +111,29 @@ admin_log = sa.Table(                                                         # 
     sa.Column("detail", sa.String(300), nullable=False, server_default=""),
 )
 
+publish_posts = sa.Table(                                                     # queued/posted/failed clips for YouTube and other platforms
+    "publish_posts", meta,
+    sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column("user_id", sa.String(40), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True),
+    sa.Column("clip_id", sa.String(60), nullable=False, index=True),          # job_id.clip_id
+    sa.Column("platform", sa.String(20), nullable=False, server_default="youtube"),
+    sa.Column("youtube_video_id", sa.String(40)),
+    sa.Column("youtube_url", sa.String(200)),
+    sa.Column("title", sa.String(200), nullable=False, server_default=""),
+    sa.Column("description", sa.Text, nullable=False, server_default=""),
+    sa.Column("tags", sa.Text, nullable=False, server_default=""),            # JSON array
+    sa.Column("privacy_status", sa.String(20), nullable=False, server_default="private"),  # public | unlisted | private
+    sa.Column("thumbnail_path", sa.String(300)),
+    sa.Column("status", sa.String(20), nullable=False, server_default="queued", index=True),  # queued | uploading | posted | failed | quota_paused
+    sa.Column("error_message", sa.Text, nullable=False, server_default=""),
+    sa.Column("retry_count", sa.Integer, nullable=False, server_default="0"),
+    sa.Column("scheduled_for", sa.Float),                                     # UTC timestamp
+    sa.Column("posted_at", sa.Float),
+    sa.Column("created_at", sa.Float, nullable=False),
+    sa.Index("publish_posts_user_status", "user_id", "status"),
+    sa.Index("publish_posts_user_scheduled", "user_id", "scheduled_for"),
+)
+
 
 def init():
     meta.create_all(engine)

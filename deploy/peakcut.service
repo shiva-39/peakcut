@@ -1,0 +1,32 @@
+[Unit]
+Description=PeakCut - AI-powered video clipping and YouTube publishing
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=peakcut
+Group=peakcut
+WorkingDirectory=/opt/peakcut
+EnvironmentFile=/opt/peakcut/.env
+ExecStart=/opt/peakcut/.venv/bin/python -m studio.server
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=peakcut
+
+# Resource limits
+MemoryMax=4G
+CPUQuota=200%
+LimitNOFILE=65536
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/peakcut/data /opt/peakcut/secrets
+
+[Install]
+WantedBy=multi-user.target

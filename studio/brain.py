@@ -323,6 +323,74 @@ def describe(text, title="", uploader=""):
         return blank
 
 
+YT_META_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "yt_title": {"type": "STRING"},
+        "yt_description": {"type": "STRING"},
+        "yt_tags": {"type": "ARRAY", "items": {"type": "STRING"}},
+    },
+    "required": ["yt_title", "yt_description", "yt_tags"],
+}
+
+YT_META_PROMPT = """You are writing the YouTube upload metadata for a short vertical clip (YouTube Shorts).
+The clip was automatically selected from a longer video or live stream.
+
+Video title: {title}
+Channel: {uploader}
+Clip hook (big on-screen text): {hook}
+Clip title: {clip_title}
+Clip description: {clip_description}
+Clip hashtags: {hashtags}
+
+Write:
+- yt_title: At most 95 characters. Engaging, accurate, no clickbait. Include the main subject.
+- yt_description: 2-3 sentences describing what happens. End with "#Shorts" and a credit line: "Clip from: {uploader} - {title}".
+- yt_tags: 8-10 relevant tags (no # symbol), lower case, comma-separated in the JSON array. Include "shorts" and the game/category if clear.
+
+Return ONLY the JSON object with these three fields.
+"""
+
+
+def youtube_metadata(clip: dict, title: str = "", uploader: str = "") -> dict:
+    """Generate YouTube-optimized metadata for a clip: yt_title (<=95 chars), yt_description, yt_tags."""
+    if not config.ai_ready():
+        hook = clip.get("hook", "")[:95]
+        desc = (clip.get("description", "") or clip.get("title", "") or "Clip") + f"\n\n#Shorts\nClip from: {uploader or 'unknown'} - {title or 'unknown'}"
+        tags = [h.lower() for h in clip.get("hashtags", [])] + ["shorts"]
+        return {"yt_title": hook or "Clip", "yt_description": desc, "yt_tags": list(dict.fromkeys(tags))[:10]}
+
+    prompt = YT_META_PROMPT.format(
+        title=_safe(title) or "unknown",
+        uploader=_safe(uploader) or "unknown",
+        hook=_safe(clip.get("hook", "")),
+        clip_title=_safe(clip.get("title", "")),
+        clip_description=_safe(clip.get("description", "")),
+        hashtags=", ".join(clip.get("hashtags", [])),
+    )
+    try:
+        out, _model, _spent = ask_ai(prompt, YT_META_SCHEMA, purpose="YouTube metadata")
+        yt_title = _text(out.get("yt_title", ""), 95) or clip.get("hook", "Clip")[:95]
+        yt_description = _text(out.get("yt_description", ""), 4800)
+        if "#Shorts" not in yt_description:
+            yt_description += "\n\n#Shorts"
+        if "Clip from:" not in yt_description:
+            yt_description += f"\nClip from: {_safe(uploader)} - {_safe(title)}"
+        yt_tags = []
+        for t in out.get("yt_tags", []):
+            t = re.sub(r"[^a-z0-9 ]", "", str(t).lower()).strip()
+            if t:
+                yt_tags.append(t)
+        if "shorts" not in yt_tags:
+            yt_tags.append("shorts")
+        return {"yt_title": yt_title, "yt_description": yt_description, "yt_tags": list(dict.fromkeys(yt_tags))[:10]}
+    except Exception:
+        hook = clip.get("hook", "")[:95]
+        desc = (clip.get("description", "") or clip.get("title", "") or "Clip") + f"\n\n#Shorts\nClip from: {uploader or 'unknown'} - {title or 'unknown'}"
+        tags = [h.lower() for h in clip.get("hashtags", [])] + ["shorts"]
+        return {"yt_title": hook or "Clip", "yt_description": desc, "yt_tags": list(dict.fromkeys(tags))[:10]}
+
+
 # ---------------------------------------------------------------- live: two judges that never see each other's input
 TRANSCRIPT_JUDGE = """You are a clip scout for short-form gaming and streaming videos (YouTube Shorts, Reels, TikTok).
 You only get the WORDS spoken on a live stream: a timestamped transcript, each line starting with [seconds].
@@ -405,7 +473,7 @@ def judge_signals(z, chat, start, now):
 
 FIX_SCHEMA = {"type": "ARRAY", "items": {"type": "STRING"}}
 # Languages whose captions keep the words that were said: English as it is, Hindi and Urdu in Roman letters.
-KEEP_LANGS = ("en", "hi", "ur")
+KEEP_LANGS = ("en", "hi", "ur", "te")
 
 
 def needs_translation(lang: str) -> bool:

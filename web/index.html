@@ -327,6 +327,54 @@ label.ck input{accent-color:var(--brand);margin:0}
 .addrow svg{width:16px;height:16px}
 .addrow span{margin-left:auto;font-weight:500;color:var(--faint);font-size:12px}
 @media (max-width:560px){.lp .th{width:88px}.lp .ok{display:none}}
+
+/* ---------- Batch verification / Quick-paste hero */
+.quick-paste-hero{background:linear-gradient(135deg,var(--brand-soft),var(--muted));border:1px solid var(--brand-line);border-radius:var(--r-lg);padding:24px;margin-bottom:24px;text-align:center}
+.quick-paste-hero h2{font-size:clamp(18px,4vw,24px);font-weight:700;color:var(--brand-ink);margin-bottom:8px}
+.quick-paste-hero p{color:var(--dim);margin-bottom:16px}
+.quick-paste-hero .composer-input{background:#fff;border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden;max-width:720px;margin:0 auto}
+.quick-paste-hero .composer-input input{height:56px;padding:0 16px 0 48px;font-size:15px;border-radius:var(--r-lg);border:0}
+.quick-paste-hero .composer-input svg{left:16px;color:var(--faint)}
+.quick-paste-hero .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.quick-paste-hero .hero-actions .btn{height:44px;padding:0 24px;font-size:15px}
+
+.batch-verify-drawer{position:fixed;top:0;right:0;bottom:0;width:520px;max-width:100vw;background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 32px rgba(0,0,0,.08);z-index:100;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.batch-verify-drawer.open{transform:translateX(0)}
+.batch-verify-drawer header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);flex-shrink:0}
+.batch-verify-drawer header h2{font-size:16px;font-weight:600;color:var(--brand-ink)}
+.batch-verify-drawer header .close-btn{width:36px;height:36px;border-radius:var(--r);border:0;background:transparent;color:var(--dim);cursor:pointer;display:grid;place-items:center}
+.batch-verify-drawer header .close-btn:hover{background:var(--muted);color:var(--text)}
+.batch-verify-drawer .drawer-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+.batch-verify-drawer .job-info{padding:12px;background:var(--muted);border-radius:var(--r)}
+.batch-verify-drawer .job-info .title{font-weight:600;color:var(--brand-ink);margin-bottom:4px}
+.batch-verify-drawer .job-info .meta{font-size:12px;color:var(--dim)}
+.batch-verify-drawer .clip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.batch-verify-drawer .clip-item{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:box-shadow .15s, border-color .15s}
+.batch-verify-drawer .clip-item.selected{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.batch-verify-drawer .clip-item .preview{aspect-ratio:9/16;background:#17110E;position:relative;overflow:hidden}
+.batch-verify-drawer .clip-item .preview img{width:100%;height:100%;object-fit:cover}
+.batch-verify-drawer .clip-item .preview .dur{position:absolute;bottom:6px;right:6px;background:rgba(20,12,8,.82);color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px}
+.batch-verify-drawer .clip-item .info{padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.batch-verify-drawer .clip-item .info .hook{font-weight:600;font-size:12px;color:var(--brand-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.batch-verify-drawer .clip-item .info .yt-title{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.batch-verify-drawer .clip-item .info .privacy{font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;display:inline-block;width:fit-content}
+.batch-verify-drawer .clip-item .check-wrap{display:flex;align-items:center;justify-content:center;padding:8px;border-top:1px solid var(--line-2);background:var(--muted)}
+.batch-verify-drawer .clip-item .check-wrap label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text)}
+.batch-verify-drawer .clip-item .check-wrap input[type=checkbox]{width:18px;height:18px;accent-color:var(--brand)}
+.batch-verify-drawer .drawer-footer{display:flex;flex-direction:column;gap:10px;padding:16px 20px;border-top:1px solid var(--line);flex-shrink:0;background:var(--muted)}
+.batch-verify-drawer .drawer-footer .status-banner{background:var(--brand-soft);color:var(--brand-ink);border-radius:var(--r);padding:10px 12px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px}
+.batch-verify-drawer .drawer-footer .status-banner i{width:16px;height:16px;color:var(--brand)}
+.batch-verify-drawer .drawer-footer .btn-row{display:flex;gap:8px}
+.batch-verify-drawer .drawer-footer .btn-row .btn{flex:1}
+.batch-verify-drawer .drawer-footer .btn-row .btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+
+.batch-verify-overlay{position:fixed;inset:0;background:rgba(30,22,18,.35);z-index:99;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+.batch-verify-overlay.open{opacity:1;visibility:visible}
+
+@media (max-width:640px){
+  .batch-verify-drawer{width:100%;}
+  .batch-verify-drawer .clip-grid{grid-template-columns:1fr}
+}
 .btn.primary:disabled{background:#F3E7DD;color:#B9A597;cursor:not-allowed}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
@@ -830,6 +878,28 @@ dialog[open]{animation:fadein .16s ease}
 <dialog id="clipdlg"></dialog>
 <dialog id="formdlg"></dialog>
 <input type="file" id="file" accept="video/*" multiple hidden>
+<div class="batch-verify-overlay" id="batchVerifyOverlay" role="presentation" aria-hidden="true"></div>
+<div class="batch-verify-drawer" id="batchVerifyDrawer" role="dialog" aria-label="Verify & Submit Clips" aria-modal="true">
+  <header>
+    <h2>Verify & Submit Clips</h2>
+    <button class="close-btn" aria-label="Close" onclick="closeBatchVerify()">${ic("x")}</button>
+  </header>
+  <div class="drawer-body">
+    <div class="job-info">
+      <div class="title" id="batchVerifyJobTitle">Loading…</div>
+      <div class="meta" id="batchVerifyJobMeta"></div>
+    </div>
+    <div class="clip-grid" id="batchVerifyGrid"></div>
+  </div>
+  <div class="drawer-footer">
+    <div class="status-banner" id="batchVerifyStatus">${ic("clock")}Select clips to queue for YouTube</div>
+    <div class="btn-row">
+      <button class="btn" onclick="selectAllBatchClips(true)">${ic("check")}Select All</button>
+      <button class="btn" onclick="selectAllBatchClips(false)">${ic("x")}Deselect All</button>
+      <button class="btn primary" id="batchApproveBtn" disabled onclick="approveBatchClips()">${ic("send")}Approve & Queue</button>
+    </div>
+  </div>
+</div>
 <div id="toasts" role="status" aria-live="polite"></div>
 <div class="pop" id="bellpop" role="dialog" aria-label="Notifications" hidden></div>
 <div class="pop menu" id="acctpop" role="menu" hidden></div>
@@ -1050,7 +1120,7 @@ function startTour() {
 
 /* ============================================================ state */
 const S = {status:{styles:{}, layouts:{}}, jobs:[], creators:[], accounts:[], overview:null, settings:null,
-           view:"overview", ctab:"clips"};
+           view:"overview", ctab:"clips", pubTab:"all"};
 const D = {jid:null, cid:null, sig:""};
 const creatorId = () => S.view.startsWith("c:") ? S.view.slice(2) : null;
 const creator = () => S.creators.find(c => c.id === creatorId());
@@ -1247,6 +1317,7 @@ function drawShell() {  const nav = (v, icon, label, extra = "") => `<button cla
   put($("#nav"), nav("overview", navIc("home", "overview"), "Home") +
     nav("library", navIc("film", "library"), "All videos", (() => { const w = S.jobs.filter(j => ["queued", "running"].includes(j.status)).length;
       return w ? `<span class="working" title="${w} working now"><i></i>${w} working</span>` : S.jobs.length ? `<span class="count">${S.jobs.length}</span>` : ""; })()) +
+    nav("publishing", navIc("send", "publishing"), "Content & Publishing") +
     `<h4><span>Creators</span></h4>` +
     S.creators.map(c => nav("c:" + c.id, cav(c), c.name,
       c.live_job ? `<span class="sb-tag rec" title="Recording now"><i></i>Rec</span>`
@@ -1283,6 +1354,11 @@ function drawShell() {  const nav = (v, icon, label, extra = "") => `<button cla
     act = (L.repo ? `<a class="btn" href="${esc(L.repo)}" target="_blank" rel="noopener" title="Star PeakCut on GitHub">${ic("github")}<span>Star<span class="long"> on GitHub</span></span></a>` : "")
         + (L.follow ? `<a class="btn primary" href="${esc(L.follow)}" target="_blank" rel="noopener" title="Follow the maker of PeakCut on Instagram">${ic("instagram")}Follow me</a>` : "");
   }
+  if (S.view === "publishing") {
+    title = "Content & Publishing";
+    sub = "Queue clips for YouTube Shorts, manage uploads, and track quota.";
+    act = `<button class="btn primary" data-act="pubQueueAll">${ic("send")}Queue selected clips</button>`;
+  }
   const me = S.status.user;
   const kk = S.status.ai;
   const up = S.status.update;
@@ -1300,7 +1376,7 @@ function drawShell() {  const nav = (v, icon, label, extra = "") => `<button cla
   put($("#title"), `<span>${esc(title)}</span>`); put($("#subtitle"), subHtml ?? esc(sub)); put($("#actions"), act);
 }
 
-const ROUTES = {overview: "", library: "videos", settings: "settings", usage: "usage"};
+const ROUTES = {overview: "", library: "videos", settings: "settings", usage: "usage", publishing: "publishing"};
 function pathFor(v, tab) {
   if (v.startsWith("c:")) return `/app/creators/${encodeURIComponent(v.slice(2))}${tab && tab !== "clips" ? "/" + tab : ""}`;
   if (v === "settings") return "/app/settings" + (tab ? "/" + tab : "");
@@ -1334,6 +1410,7 @@ function go(v, tab, fromHistory) {
   else if (v === "library") view.innerHTML = `<div id="add"></div><div id="jobs"></div>`;
   else if (v === "settings") view.innerHTML = `<div id="sform"></div>`;
   else if (v === "usage") { view.innerHTML = `<div id="usage"></div>`; loadUsage(); }
+  else if (v === "publishing") { view.innerHTML = `<div id="publishing"></div>`; loadPublishing(); }
   else view.innerHTML = `<div id="stream"></div><div id="cbody"></div>`;   // the live player stays put across tabs: no restart, no rebuffer
   if ($("#add")) drawAdd(v === "overview" ? "hero" : "compact");
   if (v === "overview" && window.GradientASCII) { try { window._gaStop = GradientASCII($("#appAscii"), {colors: ["#ffb27a", "#ffffff", "#ffd2ae", "#ffe0c2", "#fff1e6"], shape: "horizon", lightMode: true, cellSize: 16, density: 0.8, glyphOpacity: 0.26, gradientOpacity: 0.32, glow: 0.06, grain: 0.06, mouseInteraction: false, clickEffect: "none"}); } catch {} }
@@ -1690,6 +1767,7 @@ function clipHtml(j, c) {
         ${busyClip ? "" : `<button class="btn sm icon ghost" data-act="delclip" ${a} title="Delete this clip" aria-label="Delete this clip">${ic("trash")}</button>`}
         <span class="grow"></span>
         ${c.status === "done" ? `<button class="btn sm" data-act="openclip" ${a}>${ic("send")}Post</button>` : ""}
+        ${c.status === "done" ? `<button class="btn sm" data-act="ytqueue" ${a} title="Queue for YouTube">${ic("video")}YouTube</button>` : ""}
       </div>
     </div></article>`;
 }
@@ -1882,7 +1960,15 @@ function drawLog() {
 }
 
 /* ============================================================ overview */
-async function loadOverview() { try { S.overview = await api("/api/overview"); } catch { return; } drawOverview(); }
+async function loadOverview() { try { S.overview = await api("/api/overview"); } catch { return; } drawOverview(); setupQuickPasteHero(); }
+function setupQuickPasteHero() {
+  const urlInput = $("#qp_url");
+  const goBtn = $("#qp_goBtn");
+  const autoQueue = $("#qp_autoqueue");
+  if (urlInput) urlInput.addEventListener("input", e => onQuickPasteLink(e.target));
+  if (goBtn) goBtn.addEventListener("click", makeQuickPasteClips);
+  if (autoQueue) autoQueue.addEventListener("change", saveQuickPasteSettings);
+}
 function barChart(daily) {
   const W = 720, H = 230, pl = 30, pb = 28, pt = 12, n = daily.length, ch = H - pt - pb;
   const peak = Math.max(1, ...daily.map(d => Math.max(d.clips, d.posted)));
@@ -1916,7 +2002,16 @@ function drawOverview() {
   const state = r => r.state === "recording" ? `<span class="pill live"><span class="dot"></span>Recording</span>` : r.state === "waiting" ? `<span class="pill warn">Waiting for live</span>` : `<span class="pill">Idle</span>`;
   const pst = p => p.status === "posted" ? `<span class="pill ok">Posted</span>` : p.status === "failed" ? `<span class="pill bad">Failed</span>` : p.status === "posting" ? `<span class="pill warn">Posting now</span>` : `<span class="pill warn">${clock(p.due_at)}</span>`;
   const steps = nextSteps(o);
-  put(box, `<div class="tiles">
+  put(box, `<div class="quick-paste-hero" id="quickPasteHero">
+    <h2>${ic("link")} Paste a Video or Stream Link</h2>
+    <p>PeakCut finds the best moments, generates titles & captions, and preps them for YouTube.</p>
+    <div class="composer-input">${ic("link")}<input id="qp_url" placeholder="https://youtube.com/watch?v=... or twitch.tv/..." autocomplete="off" aria-label="Video link"></div>
+    <div class="hero-actions">
+      <label class="chip" style="cursor:pointer"><input type="checkbox" id="qp_autoqueue" ${o.settings?.yt_skip_review_auto_queue ? "checked" : ""} onchange="saveQuickPasteSettings()">${ic("clock")}Auto-queue without review</label>
+      <button class="btn primary" id="qp_goBtn">${ic("scissors")}Clip & Prep</button>
+    </div>
+  </div>
+  <div class="tiles">
       <div class="tile"><i>${ic("radio")}</i><b>${o.recording}</b><span>Recording now</span></div>
       <div class="tile"><i>${ic("scissors")}</i><b>${sum("clips_today")}</b><span>Clips today</span></div>
       <div class="tile"><i>${ic("send")}</i><b>${sum("posted_today")}</b><span>Posted today</span></div>
@@ -1988,7 +2083,257 @@ function drawUsage() {
       : `<p class="help">No AI calls yet.</p>`}</div>`;
 }
 
-/* ============================================================ settings */
+/* ============================================================ Content & Publishing Dashboard */
+async function loadPublishing() {
+  try { S.publishing = await api("/api/publishing/posts"); } catch { return; }
+  drawShell(); drawPublishing();
+}
+function quotaBar(used, limit, nextReset) {
+  const pct = limit ? Math.min(100, (used / limit) * 100) : 0;
+  const now = Date.now() / 1000;
+  const left = Math.max(0, nextReset - now);
+  const h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60);
+  const resetStr = left < 3600 ? `${m} min` : `${h}h ${m}m`;
+  return `<div class="stor-bar"><i style="width:${pct}%"></i></div>
+    <div class="stor-nums"><span>Uploads today: <b>${used} / ${limit}</b></span><span>Quota resets in <b>${resetStr}</b></span></div>`;
+}
+function statusPill(status, dueAt, postedAt) {
+  const cls = {queued: "warn", uploading: "warn", posted: "ok", failed: "bad", quota_paused: "bad"}[status] || "warn";
+  let txt = status.charAt(0).toUpperCase() + status.slice(1).replace("_", " ");
+  if (status === "queued" && dueAt) txt = "Scheduled " + clock(dueAt);
+  if (status === "posted" && postedAt) txt = "Posted " + when(postedAt);
+  if (status === "quota_paused") txt = "Quota paused";
+  return `<span class="pill ${cls}">${txt}</span>`;
+}
+function drawPublishing() {
+  const box = $("#publishing"); if (!box) return;
+  const d = S.publishing || {posts: [], counts: {}, quota: {}, accounts: []};
+  const posts = d.posts || [];
+  const counts = d.counts || {};
+  const quota = d.quota || {};
+  const ytAccounts = d.accounts || [];
+  const tabs = ["all", "posted", "queued", "quota_paused", "failed"].map(s => {
+    const n = counts[s] || 0;
+    return `<button class="tabbtn ${S.pubTab === s ? "on" : ""}" data-act="pubtab" data-t="${s}" role="tab" aria-selected="${S.pubTab === s}">${s.charAt(0).toUpperCase() + s.slice(1).replace("_", " ")}<span class="n">${n > 99 ? "99+" : n}</span></button>`;
+  }).join("");
+  const connected = ytAccounts.length > 0;
+  const quotaHtml = connected ? `<div class="card"><div class="card-head"><h2>YouTube Quota</h2></div>
+    ${quotaBar(quota.used || 0, quota.limit || 6, quota.next_reset || 0)}
+    <div class="row" style="margin-top:12px;gap:8px">
+      <button class="btn sm" data-act="pubSettings">${ic("sliders")}Settings</button>
+      <button class="btn sm" data-act="pubRefresh">${ic("chart")}Refresh</button>
+    </div></div>` : `<div class="card"><div class="card-head"><h2>YouTube</h2></div>
+    <div class="note">${ic("plug")}<span>No YouTube account connected. Connect one in Settings, Connected apps.</span></div>
+    <button class="btn primary" data-act="go" data-v="settings" data-tab="apps">${ic("plus")}Connect YouTube</button></div>`;
+  const filterTabs = connected ? `<nav class="tabs" style="margin-top:16px">${tabs}</nav>` : "";
+  const rowsHtml = posts.filter(p => S.pubTab === "all" || p.status === S.pubTab).map(p => {
+    const ytLink = p.youtube_url ? `<a class="pill ok" href="${esc(p.youtube_url)}" target="_blank" rel="noopener">${ic("video")}YouTube</a>` : "";
+    const preview = p.preview_url ? `<div class="jthumb" style="width:80px;height:45px"><img src="${esc(p.preview_url)}" alt="" loading="lazy"></div>` : "";
+    const title = p.title || p.clip_title || "Untitled";
+    const privacy = p.privacy_status || "private";
+    const privacyCls = privacy === "public" ? "ok" : privacy === "unlisted" ? "warn" : "bad";
+    const due = p.scheduled_for ? clock(p.scheduled_for) : "";
+    const posted = p.posted_at ? when(p.posted_at) : "";
+    const errorTip = p.error_message ? ` title="${esc(p.error_message.slice(0, 200))}"` : "";
+    return `<div class="clip" style="flex-direction:row;align-items:center;padding:12px;gap:12px">
+      ${preview}
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="hook" style="margin:0;max-width:500px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(title)}</div>
+          <span class="pill ${privacyCls}">${privacy}</span>
+        </div>
+        <div class="sub" style="margin-top:4px">${esc(p.account_name || "YouTube")} · ${due || posted || "—"}</div>
+        <div class="row" style="margin-top:8px;gap:6px">${statusPill(p.status, p.scheduled_for, p.posted_at)}${ytLink}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        ${p.status === "queued" || p.status === "quota_paused" ? `<button class="btn sm" data-act="pubNow" data-id="${p.id}"${errorTip}>Publish now</button>` : ""}
+        ${p.status === "failed" ? `<button class="btn sm danger" data-act="pubRetry" data-id="${p.id}"${errorTip}>Retry</button>` : ""}
+        ${p.status === "queued" || p.status === "failed" || p.status === "quota_paused" ? `<button class="btn sm icon ghost" data-act="pubEdit" data-id="${p.id}" aria-label="Edit metadata">${ic("sliders")}</button>` : ""}
+        ${p.status !== "posted" && p.status !== "uploading" ? `<button class="btn sm icon ghost" data-act="pubDel" data-id="${p.id}" aria-label="Remove">${ic("trash")}</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+  box.innerHTML = `${quotaHtml}
+    ${filterTabs}
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><h2>Publishing Queue</h2></div>
+      ${rowsHtml || `<div class="empty" style="padding:32px"><img src="/brand/favicon.svg" alt="" style="width:48px;height:48px"><b>No posts${S.pubTab !== "all" ? " in this category" : ""}</b><span>Clips queued for YouTube appear here.</span></div>`}
+    </div>`;
+}
+
+/* ============================================================ Batch Verification / Quick-Paste Hero */
+let batchVerifyJob = null;
+let batchVerifyClips = [];
+
+function openBatchVerify(jobId) {
+  const job = S.jobs.find(j => j.id === jobId);
+  if (!job) return;
+  batchVerifyJob = job;
+  batchVerifyClips = job.clips.filter(c => c.status === "done" && !c.yt_queued).map(c => ({
+    ...c,
+    selected: true,
+    yt_title: c.yt_title || c.title || c.hook || "Clip",
+    yt_description: c.yt_description || c.description || "",
+    yt_tags: c.yt_tags || c.hashtags || [],
+    yt_privacy: c.yt_privacy || "private"
+  }));
+
+  const drawer = $("#batchVerifyDrawer");
+  const overlay = $("#batchVerifyOverlay");
+  if (!drawer || !overlay) return;
+  drawer.querySelector(".job-info .title").textContent = job.title || job.source.name || "Untitled";
+  drawer.querySelector(".job-info .meta").textContent = `${job.clips.length} clips · ${fmt(job.duration || 0)}`;
+  renderBatchVerifyClips();
+  drawer.classList.add("open");
+  overlay.classList.add("open");
+}
+
+function closeBatchVerify() {
+  const drawer = $("#batchVerifyDrawer");
+  const overlay = $("#batchVerifyOverlay");
+  if (drawer) drawer.classList.remove("open");
+  if (overlay) overlay.classList.remove("open");
+  batchVerifyJob = null;
+  batchVerifyClips = [];
+}
+
+function renderBatchVerifyClips() {
+  const grid = $("#batchVerifyGrid");
+  if (!grid) return;
+  if (!batchVerifyClips.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1;padding:32px"><img src="/brand/favicon.svg" alt="" style="width:48px;height:48px"><b>All clips already queued</b></div>`;
+    return;
+  }
+  grid.innerHTML = batchVerifyClips.map((c, i) => {
+    const preview = c.cover ? `/media/${batchVerifyJob.id}/${c.cover}?v=${c.version || 0}` : "";
+    const dur = c.end ? fmt(c.end - c.start) : "—";
+    const privacyCls = c.yt_privacy === "public" ? "ok" : c.yt_privacy === "unlisted" ? "warn" : "bad";
+    return `<div class="clip-item ${c.selected ? "selected" : ""}" data-idx="${i}">
+      <div class="preview">${preview ? `<img src="${esc(preview)}" alt="" loading="lazy">` : ""}<span class="dur">${esc(dur)}</span></div>
+      <div class="info">
+        <div class="hook">${esc(c.hook || "Untitled")}</div>
+        <div class="yt-title">${esc(c.yt_title)}</div>
+        <span class="pill ${privacyCls} privacy">${esc(c.yt_privacy)}</span>
+      </div>
+      <div class="check-wrap"><label><input type="checkbox" ${c.selected ? "checked" : ""} onchange="toggleBatchClip(${i}, this.checked)"><span>Include</span></label></div>
+    </div>`;
+  }).join("");
+}
+
+function toggleBatchClip(idx, checked) {
+  if (idx >= 0 && idx < batchVerifyClips.length) {
+    batchVerifyClips[idx].selected = checked;
+    const item = $("#batchVerifyGrid")?.querySelector(`.clip-item[data-idx="${idx}"]`);
+    if (item) item.classList.toggle("selected", checked);
+    updateBatchVerifyFooter();
+  }
+}
+
+function selectAllBatchClips(checked) {
+  batchVerifyClips.forEach((c, i) => { c.selected = checked; });
+  renderBatchVerifyClips();
+  updateBatchVerifyFooter();
+}
+
+function updateBatchVerifyFooter() {
+  const count = batchVerifyClips.filter(c => c.selected).length;
+  const btn = $("#batchApproveBtn");
+  const status = $("#batchVerifyStatus");
+  if (btn) {
+    btn.disabled = count === 0;
+    btn.innerHTML = count ? `${ic("send")}Approve & Queue ${count} Clip${count > 1 ? "s" : ""}` : `${ic("send")}Approve & Queue`;
+  }
+  if (status) {
+    if (count === 0) {
+      status.innerHTML = `${ic("warn")}Select at least one clip to queue`;
+    } else {
+      const quota = S.publishing?.quota || {};
+      const interval = (quota.min_interval_minutes || 120);
+      status.innerHTML = `${ic("clock")}Clip 1 uploads immediately; remaining drip every ${interval} min${quota.remaining !== undefined ? ` · ${quota.remaining}/${quota.limit} quota today` : ""}`;
+    }
+  }
+}
+
+async function approveBatchClips() {
+  const selected = batchVerifyClips.filter(c => c.selected).map(c => c.id);
+  if (!selected.length || !batchVerifyJob) return;
+  const btn = $("#batchApproveBtn");
+  if (btn) { btn.disabled = true; btn.innerHTML = `${ic("up")}Queuing…`; }
+
+  try {
+    const overrides = {};
+    batchVerifyClips.filter(c => c.selected).forEach(c => {
+      overrides[c.id] = {
+        title: c.yt_title,
+        description: c.yt_description,
+        tags: c.yt_tags,
+        privacy_status: c.yt_privacy
+      };
+    });
+    const res = await send("/api/publishing/batch-approve", {job_id: batchVerifyJob.id, approved_clip_ids: selected, overrides});
+    toast(`Queued ${res.queued} clip${res.queued > 1 ? "s" : ""} for YouTube`, "ok");
+    closeBatchVerify();
+    S.publishing = await api("/api/publishing/posts");
+    if (S.view === "publishing") drawPublishing();
+    if (S.view === "overview") loadOverview();
+  } catch (err) {
+    toast(err.message, "bad");
+    if (btn) { btn.disabled = false; btn.innerHTML = `${ic("send")}Approve & Queue`; }
+  }
+}
+
+/* Quick-paste hero bar on overview */
+function drawQuickPasteHero() {
+  const box = $("#add");
+  if (!box) return;
+  const settings = S.overview?.settings || {};
+  const autoQueue = settings.yt_skip_review_auto_queue ? "checked" : "";
+  box.innerHTML = `<div class="quick-paste-hero" id="quickPasteHero">
+    <h2>${ic("link")} Paste a Video or Stream Link</h2>
+    <p>PeakCut will find the best moments, generate titles & captions, and prep them for YouTube.</p>
+    <div class="composer-input">${ic("link")}<input id="qp_url" placeholder="https://youtube.com/watch?v=... or twitch.tv/..." autocomplete="off" aria-label="Video link"></div>
+    <div class="hero-actions">
+      <label class="chip" style="cursor:pointer"><input type="checkbox" id="qp_autoqueue" ${autoQueue} onchange="saveQuickPasteSettings()">${ic("clock")}Auto-queue without review</label>
+      <button class="btn primary" id="qp_goBtn">${ic("scissors")}Clip & Prep</button>
+    </div>
+  </div>`;
+  $("#qp_url").addEventListener("input", e => onQuickPasteLink(e.target));
+  $("#qp_goBtn").addEventListener("click", makeQuickPasteClips);
+  $("#qp_autoqueue").addEventListener("change", saveQuickPasteSettings);
+}
+
+function saveQuickPasteSettings() {
+  const autoqueue = $("#qp_autoqueue")?.checked || false;
+  send("/api/publishing/settings", {yt_skip_review_auto_queue: autoqueue}, "POST");
+}
+
+async function onQuickPasteLink(input) {
+  const url = input.value.trim();
+  if (!url) return;
+  // Could add live preview here like the main composer
+}
+
+async function makeQuickPasteClips() {
+  const url = $("#qp_url")?.value?.trim();
+  if (!url) { toast("Paste a video link first.", "bad"); $("#qp_url")?.focus(); return; }
+  const btn = $("#qp_goBtn");
+  if (btn) { btn.disabled = true; btn.innerHTML = `${ic("up")}Starting…`; }
+  try {
+    const autoqueue = $("#qp_autoqueue")?.checked || false;
+    const job = await send("/api/jobs", {url, options: {}, creator: null});
+    if (job?.id) {
+      toast("Clips are being made. Check the Videos tab.", "ok");
+      $("#qp_url").value = "";
+      setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = `${ic("scissors")}Clip & Prep`; } }, 2000);
+      go("library");
+    } else {
+      throw new Error("Failed to create job");
+    }
+  } catch (err) {
+    toast(err.message, "bad");
+    if (btn) { btn.disabled = false; btn.innerHTML = `${ic("scissors")}Clip & Prep`; }
+  }
+}
 // With sign-in off there is no profile or password to manage. The AI section is for whoever runs the server.
 const setTabs = () => [
   ...(S.status.user?.is_admin ? [["ai", "AI", "bolt", "Your AI service, model and key"]] : []),
@@ -2446,6 +2791,83 @@ document.addEventListener("click", async e => {
       if (a === "postnow" && !await ask("Post now?", `This clip goes to ${accs.length} account${accs.length > 1 ? "s" : ""} straight away.`, "Post now")) return;
       await send("/api/posts", {job:D.jid, clip:D.cid, accounts:accs, now:a === "postnow"});
       toast(a === "postnow" ? "Posting now" : "Added to the queue", "ok"); return tick();
+    }
+    if (a === "ytqueue") {
+      const jid = d.j, cid = d.c;
+      const job = jobOf(jid); if (!job) return;
+      const clip = job.clips.find(c => c.id === cid); if (!clip) return;
+      const ytAccounts = S.accounts?.filter(a => a.platform === "youtube") || [];
+      if (!ytAccounts.length) return toast("No YouTube account connected. Connect one in Settings, Connected apps.", "bad");
+      const acc = ytAccounts[0];
+      const meta = await send("/api/publishing/youtube/status");
+      const dlg = $("#formdlg");
+      dlg.innerHTML = `<form method="dialog" class="dlg"><h2>Queue for YouTube</h2>
+        <label class="f">Title<input id="ytq_title" value="${esc(clip.title || clip.hook || 'Clip')}" required></label>
+        <label class="f">Description<textarea id="ytq_desc" rows="3">${esc(clip.description || '')}</textarea></label>
+        <label class="f">Tags (comma-separated)<input id="ytq_tags" value="${(clip.hashtags || []).join(', ')}"></label>
+        <label class="f">Privacy<select id="ytq_privacy">${opts({public:"Public", unlisted:"Unlisted", private:"Private (recommended for unverified projects)"}, "private")}</select></label>
+        <div class="dlg-foot"><button class="btn" value="no">Cancel</button><button class="btn primary" value="yes">Queue</button></div></form>`;
+      dlg.onclose = async () => {
+        if (dlg.returnValue !== "yes") return;
+        await send("/api/publishing/queue", {clips: [`${jid}.${cid}`], schedule: "drip", privacy: $("#ytq_privacy").value, title: $("#ytq_title").value, description: $("#ytq_desc").value, tags: $("#ytq_tags").value.split(",").map(t => t.trim()).filter(Boolean)}, "POST");
+        S.publishing = await api("/api/publishing/posts"); drawPublishing();
+        toast("Queued for YouTube", "ok");
+      };
+      dlg.returnValue = "no"; return dlg.showModal();
+    }
+    if (a === "pubTab") { S.pubTab = d.t; return drawPublishing(); }
+    if (a === "pubSettings") {
+      const s = S.publishing?.quota || {};
+      const dlg = $("#formdlg");
+      dlg.innerHTML = `<form method="dialog" class="dlg"><h2>YouTube Publishing Settings</h2>
+        <label class="f">Daily upload limit<input id="p_daily" type="number" min="1" max="100" value="${s.daily_limit || 6}"></label>
+        <label class="f">Minimum interval between uploads (minutes)<input id="p_interval" type="number" min="1" max="1440" value="${s.min_interval_minutes || 120}"></label>
+        <label class="f">Default privacy<select id="p_privacy">${opts({public:"Public", unlisted:"Unlisted", private:"Private (recommended for unverified projects)"}, s.default_privacy || "private")}</select></label>
+        <div class="dlg-foot"><button class="btn" value="no">Cancel</button><button class="btn primary" value="yes">Save</button></div></form>`;
+      dlg.onclose = async () => {
+        if (dlg.returnValue !== "yes") return;
+        await send("/api/publishing/settings", {yt_daily_upload_limit: Number($("#p_daily").value), yt_min_interval_minutes: Number($("#p_interval").value), yt_default_privacy: $("#p_privacy").value}, "POST");
+        S.publishing = await api("/api/publishing/posts"); drawPublishing();
+        toast("Settings saved", "ok");
+      };
+      dlg.returnValue = "no"; return dlg.showModal();
+    }
+    if (a === "pubRefresh") { S.publishing = await api("/api/publishing/posts"); drawPublishing(); return toast("Refreshed", "ok"); }
+    if (a === "pubQueueAll") {
+      const sel = $$("#jobs .selck input:checked").map(i => i.dataset.sel).filter(s => s.startsWith("c:"));
+      if (!sel.length) return toast("Select clips first using the checkboxes.", "bad");
+      const clips = sel.map(s => s.slice(2));
+      await send("/api/publishing/queue", {clips, schedule: "drip"});
+      S.publishing = await api("/api/publishing/posts"); drawPublishing();
+      return toast(`${clips.length} clip${clips.length > 1 ? "s" : ""} queued for YouTube`, "ok");
+    }
+    if (a === "pubNow" || a === "pubRetry" || a === "pubDel") {
+      const id = Number(d.id);
+      if (a === "pubNow") await send(`/api/publishing/posts/${id}`, {scheduled_for: Date.now() / 1000}, "PATCH");
+      else if (a === "pubRetry") await send(`/api/publishing/posts/${id}/retry`, {}, "POST");
+      else await api(`/api/publishing/posts/${id}`, {method:"DELETE"});
+      S.publishing = await api("/api/publishing/posts"); drawPublishing();
+      return toast(a === "pubNow" ? "Publishing now" : a === "pubRetry" ? "Retrying" : "Removed", "ok");
+    }
+    if (a === "pubEdit") {
+      const p = S.publishing?.posts?.find(x => x.id === Number(d.id));
+      if (!p) return;
+      const dlg = $("#formdlg");
+      dlg.innerHTML = `<form method="dialog" class="dlg"><h2>Edit YouTube Post</h2>
+        <label class="f">Title<input id="pe_title" value="${esc(p.title)}" required></label>
+        <label class="f">Description<textarea id="pe_desc" rows="4">${esc(p.description)}</textarea></label>
+        <label class="f">Tags (comma-separated)<input id="pe_tags" value="${(JSON.parse(p.tags || '[]')).join(', ')}"></label>
+        <label class="f">Privacy<select id="pe_privacy">${opts({public:"Public", unlisted:"Unlisted", private:"Private"}, p.privacy_status)}</select></label>
+        <label class="f">Schedule for (leave empty for immediate)<input id="pe_sched" type="datetime-local" value="${p.scheduled_for ? new Date(p.scheduled_for * 1000).toISOString().slice(0, 16) : ''}"></label>
+        <div class="dlg-foot"><button class="btn" value="no">Cancel</button><button class="btn primary" value="yes">Save</button></div></form>`;
+      dlg.onclose = async () => {
+        if (dlg.returnValue !== "yes") return;
+        const sched = $("#pe_sched").value ? new Date($("#pe_sched").value).getTime() / 1000 : null;
+        await send(`/api/publishing/posts/${p.id}`, {title: $("#pe_title").value, description: $("#pe_desc").value, tags: $("#pe_tags").value.split(",").map(t => t.trim()).filter(Boolean), privacy_status: $("#pe_privacy").value, scheduled_for: sched}, "PATCH");
+        S.publishing = await api("/api/publishing/posts"); drawPublishing();
+        toast("Post updated", "ok");
+      };
+      dlg.returnValue = "no"; return dlg.showModal();
     }
   } catch (err) { b.disabled = false; toast(err.message, "bad"); }
 });

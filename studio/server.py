@@ -22,7 +22,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from . import admin as admins
 from . import account, load
 from . import (accounts, ai, alerts, auth, config, creators, ctx, db, jobs, live, media, posting,
-               profiles, render, safe, transcribe, usage)
+                profiles, render, safe, transcribe, usage, youtube_publisher)
 
 from . import tools as _tools  # noqa: E402
 
@@ -72,6 +72,7 @@ def _startup():
     jobs.start()
     live.start()
     posting.start()
+    youtube_publisher.start()
     from . import updates
     updates.start()                  # looks for a newer PeakCut every minute, in the background
 
@@ -1452,6 +1453,173 @@ def post_action(pid: str, action: str):
     except ValueError as e:
         raise HTTPException(400, str(e))
     return {"ok": True}
+
+
+# ================================================================ publishing / content dashboard
+@app.get("/api/publishing/posts")
+def publishing_posts(status: str = "all", sort: str = "posted_desc"):
+    from . import youtube_publisher
+    posts = youtube_publisher.get_posts(status, sort)
+    yt_accounts = [a for a in accounts.list_accounts() if a["platform"] == "youtube"]
+    for p in posts:
+        job_id, clip_id = p["clip_id"].split(".", 1)
+        job = jobs.get(job_id)
+        clip = next((c for c in job["clips"] if c["id"] == clip_id), None) if job else None
+        if clip and clip.get("status") == "done":
+            p["preview_url"] = f"/media/{job_id}/{clip['cover']}?v={clip.get('version', 0)}"
+            p["clip_url"] = f"/media/{job_id}/{clip['file']}"
+            p["clip_title"] = clip.get("title") or clip.get("hook") or "Clip"
+            p["duration"] = clip.get("end", 0) - clip.get("start", 0)
+        p["account_name"] = next((a["name"] for a in yt_accounts if a["id"] == p.get("account_id")), "YouTube")
+    counts = {"all": len(posts), "queued": 0, "posted": 0, "quota_paused": 0, "failed": 0, "uploading": 0}
+    for p in posts:
+        counts[p["status"]] = counts.get(p["status"], 0) + 1
+    quota = youtube_publisher.get_quota_info()
+    return {"posts": posts, "counts": counts, "quota": quota, "accounts": yt_accounts}
+
+
+@app.post("/api/publishing/queue")
+def publishing_queue(body: dict = Body(...)):
+    from . import youtube_publisher, brain
+    clip_ids = body.get("clips")
+    if not clip_ids or not isinstance(clip_ids, list):
+        raise HTTPException(400, "Provide a list of clip IDs (job_id.clip_id)")
+    schedule = body.get("schedule", "drip")
+    privacy = body.get("privacy") or youtube_publisher._default_privacy()
+    made = []
+    for cid in clip_ids:
+        if "." not in cid:
+            continue
+        job_id, clip_id = cid.split(".", 1)
+        job = jobs.get(job_id)
+        clip = next((c for c in job["clips"] if c["id"] == clip_id), None) if job else None
+        if not job or not clip or clip.get("status") != "done":
+            continue
+        yt_accounts = [a for a in accounts.list_accounts() if a["platform"] == "youtube"]
+        if not yt_accounts:
+            continue
+        acc = yt_accounts[0]
+        meta = brain.youtube_metadata(clip, job.get("title", ""), job.get("uploader", ""))
+        title = body.get("title") or meta["yt_title"]
+        description = body.get("description") or meta["yt_description"]
+        tags = body.get("tags") or meta["yt_tags"]
+        scheduled_for = None
+        if schedule == "drip":
+            last_posted = youtube_publisher._last_posted_at()
+            min_interval = youtube_publisher._min_interval_minutes() * 60
+            scheduled_for = max(time.time(), last_posted + min_interval) if last_posted else time.time()
+        post = youtube_publisher.queue_post(clip_id, job_id, title, description, tags, privacy, scheduled_for)
+        post["account_id"] = acc["id"]
+        youtube_publisher._write_posts([p if p["id"] != post["id"] else post for p in youtube_publisher._read_posts()])
+        made.append(post)
+    return {"queued": len(made), "posts": made}
+
+
+@app.patch("/api/publishing/posts/{post_id}")
+def publishing_update_post(post_id: int, body: dict = Body(...)):
+    from . import youtube_publisher
+    post = youtube_publisher.update_post(post_id, **body)
+    if not post:
+        raise HTTPException(404, "Post not found")
+    return post
+
+
+@app.post("/api/publishing/posts/{post_id}/retry")
+def publishing_retry_post(post_id: int):
+    from . import youtube_publisher
+    post = youtube_publisher.retry_post(post_id)
+    if not post:
+        raise HTTPException(404, "Post not found or not failed")
+    return post
+
+
+@app.delete("/api/publishing/posts/{post_id}")
+def publishing_delete_post(post_id: int):
+    from . import youtube_publisher
+    if not youtube_publisher.delete_post(post_id):
+        raise HTTPException(404, "Post not found or cannot be deleted")
+    return {"ok": True}
+
+
+@app.get("/api/publishing/settings")
+def publishing_get_settings():
+    from . import youtube_publisher
+    return youtube_publisher.get_quota_info()
+
+
+@app.post("/api/publishing/settings")
+def publishing_save_settings(body: dict = Body(...)):
+    from . import youtube_publisher
+    daily_limit = body.get("yt_daily_upload_limit")
+    min_interval = body.get("yt_min_interval_minutes")
+    default_privacy = body.get("yt_default_privacy")
+    return youtube_publisher.save_publishing_settings(daily_limit, min_interval, default_privacy)
+
+
+@app.get("/api/publishing/youtube/status")
+def publishing_youtube_status():
+    yt_accounts = [a for a in accounts.list_accounts() if a["platform"] == "youtube"]
+    if not yt_accounts:
+        return {"connected": False}
+    acc = yt_accounts[0]
+    from . import youtube_publisher
+    quota = youtube_publisher.get_quota_info()
+    return {"connected": True, "channel": acc["name"], "quota": quota}
+
+
+@app.post("/api/publishing/youtube/connect")
+def publishing_youtube_connect():
+    if not accounts.can_connect("youtube"):
+        raise HTTPException(400, "YouTube connection not configured on this server")
+    return {"url": accounts.connect_url("youtube")}
+
+
+@app.post("/api/publishing/batch-approve")
+def publishing_batch_approve(body: dict = Body(...)):
+    from . import youtube_publisher, brain
+    job_id = body.get("job_id")
+    approved_clip_ids = body.get("approved_clip_ids", [])
+    overrides = body.get("overrides", {})
+
+    if not job_id or not isinstance(approved_clip_ids, list):
+        raise HTTPException(400, "Provide job_id and approved_clip_ids list")
+
+    job = jobs.get(job_id)
+    if not job:
+        raise HTTPException(404, "Job not found")
+
+    yt_accounts = [a for a in accounts.list_accounts() if a["platform"] == "youtube"]
+    if not yt_accounts:
+        raise HTTPException(400, "No YouTube account connected")
+
+    acc = yt_accounts[0]
+    privacy = youtube_publisher._default_privacy()
+    min_interval = youtube_publisher._min_interval_minutes() * 60
+    last_posted = youtube_publisher._last_posted_at()
+    scheduled_base = max(time.time(), last_posted + min_interval) if last_posted else time.time()
+
+    made = []
+    for i, clip_id in enumerate(approved_clip_ids):
+        clip = next((c for c in job["clips"] if c["id"] == clip_id), None)
+        if not clip or clip.get("status") != "done":
+            continue
+
+        # Use auto-generated metadata or overrides
+        override = overrides.get(clip_id, {})
+        title = override.get("title") or clip.get("yt_title") or clip.get("title") or clip.get("hook") or "Clip"
+        description = override.get("description") or clip.get("yt_description") or clip.get("description") or ""
+        tags = override.get("tags") or clip.get("yt_tags") or clip.get("hashtags", [])
+        clip_privacy = override.get("privacy_status") or privacy
+
+        # Schedule with drip intervals
+        scheduled_for = scheduled_base + (i * min_interval)
+
+        post = youtube_publisher.queue_post(clip_id, job_id, title, description, tags, clip_privacy, scheduled_for)
+        post["account_id"] = acc["id"]
+        youtube_publisher._write_posts([p if p["id"] != post["id"] else post for p in youtube_publisher._read_posts()])
+        made.append(post)
+
+    return {"queued": len(made), "posts": made, "message": f"Approved {len(made)} clip(s) for YouTube upload"}
 
 
 @app.post("/api/alerts/test")
