@@ -1,4 +1,48 @@
+---
+title: PeakCut
+emoji: 🎬
+colorFrom: indigo
+colorTo: purple
+sdk: gradio
+sdk_version: 5.20.0
+app_file: app.py
+pinned: false
+---
+
 # PeakCut
+
+Turn long videos and live streams into captioned vertical clips, ready to post. Free and open source: run it on
+your own computer or server, with your own AI key.
+
+## 🤗 Deploy on Hugging Face Spaces (Free 24/7)
+
+PeakCut runs 24/7 for free on Hugging Face Spaces using the **Gradio SDK** with a Supabase PostgreSQL database:
+
+1. **Create a Supabase project** (free tier) at https://supabase.com
+2. **Get your database URL** from Supabase Dashboard → Settings → Database → Connection String → Session Pooler (port 5432)
+   - Format: `postgresql://postgres:[PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres`
+3. **Create a Hugging Face Space** with Gradio SDK:
+   - Go to https://huggingface.co/new-space
+   - Choose "Gradio" as SDK
+   - Set the repository to this repo or fork it
+4. **Add Space Secrets** (Settings → Repository secrets):
+   - `DATABASE_URL` = your Supabase pooler URL
+   - `PEAKCUT_AI_PROVIDER` = your AI provider (e.g., `gemini`)
+   - `PEAKCUT_AI_KEY` = your AI API key
+   - `PEAKCUT_AI_MODELS` = model ID (e.g., `gemini-2.5-flash`)
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` = for YouTube OAuth (optional)
+   - `PEAKCUT_PUBLIC_URL` = your Space URL (e.g., `https://your-username-peakcut.hf.space`)
+5. **Deploy** - the Space will build and start automatically
+
+The app runs on port 7860 inside the Space, with all persistent data (settings, OAuth tokens, publish queue) stored in Supabase PostgreSQL.
+   - `PEAKCUT_AI_MODELS` = model ID (e.g., `gemini-2.5-flash`)
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` = for YouTube OAuth (optional)
+   - `PEAKCUT_PUBLIC_URL` = your Space URL (e.g., `https://your-username-peakcut.hf.space`)
+5. **Deploy** - the Space will build and start automatically
+
+The app runs on port 7860 inside the Space, with all persistent data (settings, OAuth tokens, publish queue) stored in Supabase PostgreSQL.
+
+---
 
 Turn long videos and live streams into captioned vertical clips, ready to post. Free and open source: run it on
 your own computer or server, with your own AI key.

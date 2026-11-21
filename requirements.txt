@@ -1,9 +1,11 @@
 fastapi==0.162.5
+gradio==5.20.0
 httpx==0.28.1
 numpy==2.2.6
 psycopg==3.3.9
 psycopg-binary==3.3.9
 python-multipart==0.0.32
+requests==2.32.3
 sherpa-onnx==2.0.1
 soundfile==0.14.0
 SQLAlchemy==2.0.57
